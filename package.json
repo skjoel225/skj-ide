@@ -1,0 +1,77 @@
+{
+  "name": "skj-ide",
+  "version": "1.0.0",
+  "description": "SKJ IDE — A modern AI-ready desktop IDE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skjoel225/skj-ide.git"
+  },
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "build": "vite build && electron-builder",
+    "build:vite": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "ide",
+    "electron",
+    "monaco",
+    "ai"
+  ],
+  "author": "SKJ",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/rebuild": "^3.7.2",
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.1.0",
+    "electron": "^39.8.10",
+    "electron-builder": "^26.15.3",
+    "vite": "^5.4.11",
+    "wait-on": "^8.0.1"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.6.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/addon-web-links": "^0.11.0",
+    "@xterm/xterm": "^5.5.0",
+    "chokidar": "^4.0.3",
+    "dotenv": "^17.4.2",
+    "electron-updater": "^6.8.9",
+    "node-pty": "^1.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0"
+  },
+  "build": {
+    "npmRebuild": false,
+    "appId": "com.skj.ide",
+    "productName": "SKJ IDE",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "skjoel225",
+        "repo": "skj-ide"
+      }
+    ]
+  }
+}

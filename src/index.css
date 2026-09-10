@@ -1,0 +1,217 @@
+/* ═══════════════════════════════════════════════════════════
+   SKJ IDE — Global Design System
+   Color palette, typography, layout tokens
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ─── Design Tokens ─────────────────────────────────────── */
+:root {
+  /* Brand Colors */
+  --brand-primary: #7c6af7;
+  --brand-secondary: #5b8af0;
+  --brand-accent: #4ecdc4;
+  --brand-gradient: linear-gradient(135deg, #7c6af7, #5b8af0);
+
+  /* Background scale */
+  --bg-deepest: #0d0d14;
+  --bg-deep: #111118;
+  --bg-base: #141420;
+  --bg-raised: #1a1a2e;
+  --bg-elevated: #1f1f35;
+  --bg-float: #252540;
+  --bg-hover: #2a2a48;
+  --bg-active: #303052;
+
+  /* Surface overlays */
+  --surface-glass: rgba(255, 255, 255, 0.04);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-border-strong: rgba(255, 255, 255, 0.14);
+
+  /* Text scale */
+  --text-primary: #e8e8f4;
+  --text-secondary: #9898b8;
+  --text-muted: #5c5c7a;
+  --text-accent: #7c6af7;
+  --text-success: #4ecdc4;
+  --text-warning: #f0a040;
+  --text-error: #f05060;
+  --text-info: #5b8af0;
+
+  /* Sidebar */
+  --sidebar-width: 260px;
+  --sidebar-bg: var(--bg-deep);
+  --sidebar-border: var(--surface-border);
+
+  /* Tabs */
+  --tab-height: 40px;
+  --tab-bg: var(--bg-base);
+  --tab-active-bg: var(--bg-elevated);
+  --tab-border: var(--surface-border);
+
+  /* Terminal */
+  --terminal-height: 240px;
+  --terminal-bg: var(--bg-deepest);
+  --terminal-tab-height: 36px;
+
+  /* Status bar */
+  --statusbar-height: 26px;
+  --statusbar-bg: var(--brand-primary);
+
+  /* Title bar */
+  --titlebar-height: 40px;
+  --titlebar-bg: var(--bg-deepest);
+
+  /* Scrollbar */
+  --scrollbar-width: 6px;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* Typography */
+  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 13px;
+  --font-size-lg: 14px;
+
+  /* Transitions */
+  --transition-fast: 120ms ease;
+  --transition-mid: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px rgba(124, 106, 247, 0.2);
+}
+
+/* ─── Reset & Base ───────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+/* Allow selection in editor area */
+.selectable {
+  user-select: text;
+}
+
+/* ─── Scrollbars ─────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+}
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
+/* ─── Utility classes ────────────────────────────────────── */
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-1 { flex: 1; min-width: 0; min-height: 0; }
+.gap-xs { gap: var(--spacing-xs); }
+.gap-sm { gap: var(--spacing-sm); }
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.monospace { font-family: var(--font-mono); }
+
+/* ─── Button base ────────────────────────────────────────── */
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  outline: none;
+}
+button:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* ─── Input base ─────────────────────────────────────────── */
+input {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  background: var(--bg-float);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(124, 106, 247, 0.15);
+}
+
+/* ─── Animated gradient text ─────────────────────────────── */
+.gradient-text {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Glass card ─────────────────────────────────────────── */
+.glass-card {
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(12px);
+  border-radius: var(--radius-lg);
+}
+
+/* ─── Fade-in animation ──────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+  animation: fadeIn var(--transition-mid) ease forwards;
+}
+
+/* ─── Pulse animation (for unsaved indicator) ────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

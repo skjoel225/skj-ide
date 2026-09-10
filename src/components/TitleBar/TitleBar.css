@@ -1,0 +1,158 @@
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 35px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  user-select: none;
+  -webkit-app-region: drag; /* Electron drag region */
+}
+
+.titlebar-left {
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 15px;
+}
+
+.logo-icon {
+  color: var(--accent-color);
+  font-size: 16px;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.menubar {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.menubar-item {
+  padding: 4px 10px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: default;
+  border-radius: 4px;
+}
+
+.menubar-item:hover, .menubar-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 5px 0;
+  min-width: 220px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.menu-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 15px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: default;
+}
+
+.menu-entry:hover {
+  background: var(--accent-color);
+  color: white;
+}
+
+.has-submenu {
+  position: relative;
+}
+
+.submenu-dropdown {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 5px 0;
+  min-width: 220px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  z-index: 1001;
+}
+
+.menu-shortcut {
+  font-size: 11px;
+  color: var(--text-tertiary, #666);
+}
+
+.menu-entry:hover .menu-shortcut {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.menu-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+.titlebar-sep {
+  color: var(--text-tertiary);
+  margin: 0 10px;
+  font-size: 12px;
+}
+
+.titlebar-project {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.titlebar-drag {
+  flex: 1;
+  height: 100%;
+}
+
+.titlebar-controls {
+  display: flex;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-btn {
+  width: 45px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.titlebar-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.btn-close:hover {
+  background: #e81123;
+  color: white;
+}

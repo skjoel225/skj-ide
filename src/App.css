@@ -1,0 +1,245 @@
+/* ═══════════════════════════════════════════════════════════
+   App.css — Layout principal SKJ IDE
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Root Layout ────────────────────────────────────────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+/* ─── Body (sidebar + editor) ────────────────────────────── */
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── Sidebar ────────────────────────────────────────────── */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+  overflow: hidden;
+  min-width: 160px;
+  max-width: 600px;
+  transition: none;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 6px;
+  flex-shrink: 0;
+}
+
+.sidebar-title {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.sidebar-action-btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+.sidebar-action-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.sidebar-action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.sidebar-project-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 8px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+/* Open Folder prompt */
+.sidebar-open-folder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 16px;
+}
+
+.btn-open-folder {
+  width: 100%;
+  padding: 8px 16px;
+  background: var(--brand-gradient);
+  color: white;
+  font-weight: 600;
+  font-size: var(--font-size-md);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-mid);
+  box-shadow: 0 4px 12px rgba(124, 106, 247, 0.3);
+}
+.btn-open-folder:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(124, 106, 247, 0.4);
+}
+.btn-open-folder:active { transform: translateY(0); }
+
+.sidebar-hint {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ─── Sidebar Resize Handle ──────────────────────────────── */
+.sidebar-resize,
+.chat-resize {
+  width: 4px;
+  background-color: var(--border-color);
+  cursor: col-resize;
+  transition: background-color 0.2s;
+  z-index: 10;
+}
+
+.sidebar-resize:hover,
+.sidebar-resize.dragging,
+.chat-resize:hover,
+.chat-resize.dragging {
+  background-color: var(--accent-color);
+}
+
+/* ─── Editor Area ────────────────────────────────────────── */
+.editor-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+/* ─── Dialog ─────────────────────────────────────────────── */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.dialog-modal {
+  background: var(--bg-elevated);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 400px;
+  max-width: calc(100vw - 40px);
+  box-shadow: var(--shadow-lg);
+}
+
+.dialog-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.dialog-message {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.dialog-warning {
+  color: var(--text-error);
+  font-size: var(--font-size-sm);
+}
+
+.dialog-input-group {
+  margin-bottom: 20px;
+}
+
+.dialog-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: var(--font-size-md);
+}
+
+.dialog-error {
+  font-size: var(--font-size-sm);
+  color: var(--text-error);
+  margin-top: 6px;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.dialog-btn {
+  padding: 7px 20px;
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.btn-cancel {
+  background: var(--bg-float);
+  color: var(--text-secondary);
+  border: 1px solid var(--surface-border);
+}
+.btn-cancel:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.btn-confirm {
+  background: var(--brand-gradient);
+  color: white;
+  box-shadow: 0 2px 8px rgba(124, 106, 247, 0.3);
+}
+.btn-confirm:hover { filter: brightness(1.1); }
+
+.btn-delete {
+  background: var(--text-error);
+  color: white;
+}
+.btn-delete:hover { filter: brightness(1.1); }
+
+.chat-area {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  border-left: 1px solid var(--border-color);
+  height: 100%;
+}

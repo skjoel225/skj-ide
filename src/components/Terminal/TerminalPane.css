@@ -1,0 +1,25 @@
+.terminal-pane {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+  background: var(--terminal-bg);
+  padding: 4px;
+}
+
+.terminal-pane.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-container {
+  flex: 1;
+}
+
+/* Fix xterm.js sizing */
+.terminal-container .xterm {
+  height: 100%;
+  padding: 4px 8px;
+}
+.terminal-container .xterm-viewport {
+  overflow-y: scroll !important;
+}

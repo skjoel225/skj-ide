@@ -1,0 +1,111 @@
+.terminal-panel {
+  display: flex;
+  flex-direction: column;
+  height: var(--terminal-height);
+  background: var(--terminal-bg);
+  border-top: 1px solid var(--surface-border);
+  flex-shrink: 0;
+  resize: vertical;
+  min-height: 100px;
+  max-height: 60vh;
+}
+
+/* ─── Terminal Tab Bar ───────────────────────────────────── */
+.terminal-tabbar {
+  height: var(--terminal-tab-height);
+  display: flex;
+  align-items: stretch;
+  background: var(--bg-deep);
+  border-bottom: 1px solid var(--surface-border);
+  flex-shrink: 0;
+}
+
+.terminal-tabs-scroll {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1;
+  scrollbar-width: none;
+}
+.terminal-tabs-scroll::-webkit-scrollbar { display: none; }
+
+.terminal-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  border-right: 1px solid var(--surface-border);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  min-width: 100px;
+}
+.terminal-tab:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+.terminal-tab.active {
+  background: var(--terminal-bg);
+  color: var(--text-primary);
+  border-top: 1px solid var(--brand-primary);
+}
+
+.terminal-tab-icon {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--brand-primary);
+}
+
+.terminal-tab-close {
+  font-size: 15px;
+  color: var(--text-muted);
+  border-radius: 3px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all var(--transition-fast);
+}
+.terminal-tab:hover .terminal-tab-close { opacity: 1; }
+.terminal-tab-close:hover {
+  background: var(--bg-active);
+  color: var(--text-error);
+}
+
+/* Actions (+ button) */
+.terminal-actions {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+.terminal-action-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  transition: all var(--transition-fast);
+}
+.terminal-action-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Content area */
+.terminal-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

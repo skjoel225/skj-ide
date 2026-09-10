@@ -1,0 +1,211 @@
+.orchestrator-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.orchestrator-header {
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.orchestrator-header h2 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--accent-color);
+}
+
+.orchestrator-input-area {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.orchestrator-input-area textarea {
+  width: 100%;
+  min-height: 60px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 10px;
+}
+
+.orchestrator-controls {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.action-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-start, .btn-stop {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-start {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.btn-stop {
+  background-color: #f44336;
+  color: white;
+}
+
+.orchestrator-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.orchestrator-left {
+  flex: 1;
+  border-right: 1px solid var(--border-color);
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.orchestrator-right {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: #1e1e1e;
+}
+
+/* Task List */
+.task-list h3 {
+  margin-top: 0;
+  font-size: 14px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent-color);
+  transition: width 0.3s ease;
+}
+
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  border-left: 3px solid transparent;
+}
+
+.step-item.status-running {
+  border-left-color: var(--accent-color);
+  background: rgba(0, 120, 212, 0.1);
+}
+
+.step-item.status-completed {
+  border-left-color: #4caf50;
+}
+
+.step-item.status-failed {
+  border-left-color: #f44336;
+}
+
+.step-icon {
+  width: 20px;
+  text-align: center;
+}
+
+.step-desc {
+  flex: 1;
+  font-size: 13px;
+}
+
+.step-agent.badge {
+  font-size: 10px;
+  background: #333;
+  padding: 2px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+/* Agent Status */
+.agent-status-panel h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.agent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agent-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.agent-row.active {
+  background: rgba(0, 120, 212, 0.1);
+  border: 1px solid var(--accent-color);
+}
+
+.agent-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.agent-state {
+  color: var(--text-secondary);
+}
+
+/* Logs */
+.orchestrator-logs h3 {
+  margin-top: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.log-container {
+  font-family: 'Consolas', monospace;
+  font-size: 11px;
+  color: #ccc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.log-entry {
+  word-break: break-all;
+}
