@@ -28,12 +28,6 @@ export default function App() {
   const [fileTree, setFileTree] = useState([])
   const [recentProjects, setRecentProjects] = useState([])
 
-  useEffect(() => {
-    const savedRecents = localStorage.getItem('skj.recentProjects')
-    if (savedRecents) {
-      try { setRecentProjects(JSON.parse(savedRecents)) } catch {}
-    }
-  }, [])
 
   // ─── Editor State ───────────────────────────────────────────────
   const [tabs, setTabs] = useState([])
@@ -96,6 +90,25 @@ export default function App() {
     }
   }, [])
 
+  // ─── Session Persistence ─────────────────────────────────────────
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (projectRoot) {
+        const session = {
+          projectRoot,
+          projectName,
+          tabs: tabs.map(t => t.path),
+          activeTab
+        };
+        localStorage.setItem('skj.lastSession', JSON.stringify(session));
+      } else {
+        localStorage.removeItem('skj.lastSession');
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [projectRoot, projectName, tabs, activeTab]);
+
   // ─── Dialog/Modal State ─────────────────────────────────────────
   const [dialog, setDialog] = useState(null) // { type, node, defaultValue, onConfirm }
   const [dialogValue, setDialogValue] = useState('')
@@ -129,6 +142,52 @@ export default function App() {
       showError(`Cannot open folder: ${err.message}`)
     }
   }, [])
+
+  // ─── Session Restore ─────────────────────────────────────────────
+  useEffect(() => {
+    const savedRecents = localStorage.getItem('skj.recentProjects')
+    if (savedRecents) {
+      try { setRecentProjects(JSON.parse(savedRecents)) } catch {}
+    }
+    
+    const restoreSession = async () => {
+      const savedSession = localStorage.getItem('skj.lastSession');
+      if (savedSession) {
+        try {
+          const session = JSON.parse(savedSession);
+          if (session.projectRoot) {
+            await handleOpenFolder(session.projectRoot);
+            if (session.tabs && session.tabs.length > 0) {
+              const restoredTabs = [];
+              for (const path of session.tabs) {
+                try {
+                  const { content } = await fileService.readFile(path);
+                  restoredTabs.push({
+                    path,
+                    content,
+                    originalContent: content,
+                    isDirty: false
+                  });
+                } catch (e) {
+                  // Ignore deleted files
+                }
+              }
+              setTabs(restoredTabs);
+              if (session.activeTab && restoredTabs.some(t => t.path === session.activeTab)) {
+                setActiveTab(session.activeTab);
+              } else if (restoredTabs.length > 0) {
+                setActiveTab(restoredTabs[0].path);
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Failed to restore session", err);
+        }
+      }
+    };
+    
+    setTimeout(restoreSession, 100);
+  }, [handleOpenFolder])
 
   // Watch file changes and refresh tree
   useEffect(() => {
