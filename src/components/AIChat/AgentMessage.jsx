@@ -17,7 +17,7 @@ export default function AgentMessage({ message, agentStatus }) {
   return (
     <div className={`chat-message ${isUser ? 'chat-message-user' : 'chat-message-ai'}`}>
       <div className="chat-message-header">
-        <span className="chat-message-role">{isUser ? 'USER' : '🤖 AGENT'}</span>
+        <span className="chat-message-role">{isUser ? 'USER' : 'AGENT'}</span>
       </div>
       <div className="chat-message-content">
         {isUser ? (

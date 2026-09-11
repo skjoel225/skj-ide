@@ -170,6 +170,7 @@ function readDirRecursive(dirPath, depth = 0) {
 
   return entries
     .filter(e => !e.name.startsWith('.') || e.name === '.env') // allow .env
+    .filter(e => e.name !== 'node_modules' && e.name !== '.git') // exclude node_modules and .git
     .sort((a, b) => {
       // Folders first, then files, both alphabetical
       if (a.isDirectory() && !b.isDirectory()) return -1

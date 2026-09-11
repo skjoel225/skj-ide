@@ -10,8 +10,11 @@ import QuickOpen from './components/QuickOpen/QuickOpen'
 import AgentTabsView from './components/AIOperation/AgentTabsView'
 import MigrationModal from './components/Migration/MigrationModal'
 import MigrationSettings from './components/Settings/MigrationSettings'
+import CollaborationModal from './components/Collaboration/CollaborationModal'
+import PermissionsModal from './components/Collaboration/PermissionsModal'
 import { fileService } from './services/fileService'
 import { projectService } from './services/projectService'
+import { collaborationService } from './services/collaborationService'
 import { detectLanguage } from './utils/languageDetector'
 import { basename, dirname, joinPath, validateFilename } from './utils/pathUtils'
 import './App.css'
@@ -53,6 +56,29 @@ export default function App() {
   const [isDraggingChat, setIsDraggingChat] = useState(false)
   const [isChatOpen, setIsChatOpen] = useState(true)
   const [theme, setTheme] = useState(() => localStorage.getItem('skj.theme') || 'dark')
+  
+  // ─── Collaboration State ─────────────────────────────────────────
+  const [collabModal, setCollabModal] = useState(null) // { type: 'create-prompt' | 'join', code?: string }
+  const [collabStatus, setCollabStatus] = useState('idle')
+  const [showPermissions, setShowPermissions] = useState(false)
+
+  useEffect(() => {
+    const unsubStatus = collaborationService.onChange('status', (status) => setCollabStatus(status))
+    const unsubTree = collaborationService.onChange('file-tree', (tree) => setFileTree(tree))
+    const unsubEdit = collaborationService.onChange('file-edit', (data) => {
+      // If a guest/host edits a file, and we have it open, update its content
+      setTabs(prev => prev.map(t => {
+        if (t.path !== data.path) return t;
+        return { ...t, content: data.content, isDirty: data.content !== t.originalContent }
+      }))
+    })
+
+    return () => {
+      unsubStatus()
+      unsubTree()
+      unsubEdit()
+    }
+  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme === 'dark' ? '' : theme)
@@ -111,6 +137,9 @@ export default function App() {
         try {
           const tree = await fileService.readDir(projectRoot)
           setFileTree(tree)
+          if (collaborationService.isHost) {
+            collaborationService.broadcastFileTree()
+          }
         } catch {}
       }
     })
@@ -142,20 +171,16 @@ export default function App() {
     }
   }, [tabs])
 
-  const handleOpenFile = useCallback(async () => {
-    const filePath = await api.dialog.openFile()
-    if (!filePath) return
-    await openFile({ path: filePath, isDir: false })
-  }, [openFile])
-
-  // ─────────────────────────────────────────────────────────────────
-  // Editor: Content Change
-  // ─────────────────────────────────────────────────────────────────
   const handleEditorChange = useCallback((path, newContent) => {
     setTabs(prev => prev.map(t => {
       if (t.path !== path) return t
       return { ...t, content: newContent, isDirty: newContent !== t.originalContent }
     }))
+    
+    // Sync with other collaborators if active
+    if (collaborationService.roomId) {
+      collaborationService.syncFileEdit(path, newContent)
+    }
   }, [])
 
   // ─────────────────────────────────────────────────────────────────
@@ -465,6 +490,34 @@ export default function App() {
   const activeLang = activeTab ? detectLanguage(activeTab) : null
 
   // ─────────────────────────────────────────────────────────────────
+  // Collaboration
+  // ─────────────────────────────────────────────────────────────────
+  const handleCollabCreate = async (username) => {
+    if (!projectRoot) {
+      showError('Please open a folder first to share it.');
+      return;
+    }
+    const code = await collaborationService.createRoom(projectRoot, username);
+    if (code) {
+      setCollabModal({ type: 'create-success', code });
+    } else {
+      showError('Failed to create collaboration session.');
+    }
+  }
+
+  const handleCollabJoin = async (code, username) => {
+    const success = await collaborationService.joinRoom(code, username);
+    if (success) {
+      setCollabModal(null);
+      // Let the socket fetch the file tree automatically (via guest-receive-file-tree)
+      // Note: we might need to ask the host for it right away
+      collaborationService.requestFileTree();
+    } else {
+      showError('Failed to join room. Please check the code.');
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
   // Error helper
   // ─────────────────────────────────────────────────────────────────
   function showError(msg) {
@@ -480,7 +533,10 @@ export default function App() {
       <TitleBar 
         projectName={projectName}
         onNewFile={() => openDialog('new-file', { path: projectRoot || '', isDir: true })}
-        onOpenFile={handleOpenFile}
+        onOpenFile={async () => {
+          const filePath = await api.dialog.openFile()
+          if (filePath) await openFile({ path: filePath, isDir: false })
+        }}
         onOpenFolder={handleOpenFolder}
         onSave={() => handleSave()}
         onSaveAs={handleSaveAs}
@@ -491,6 +547,10 @@ export default function App() {
         onOpenSettings={() => setShowSettings(true)}
         theme={theme}
         onThemeChange={setTheme}
+        onCollabCreate={() => setCollabModal({ type: 'create-prompt' })}
+        onCollabJoin={() => setCollabModal({ type: 'join' })}
+        isHost={collaborationService.isHost}
+        onCollabPermissions={() => setShowPermissions(true)}
       />
 
       {/* Main area */}
@@ -526,15 +586,17 @@ export default function App() {
           </div>
 
           {/* Project name */}
-          {projectName && (
+          {(projectName || (collabStatus === 'joined')) && (
             <div className="sidebar-project-name">
               <span>📁</span>
-              <span className="truncate">{projectName.toUpperCase()}</span>
+              <span className="truncate">
+                {collabStatus === 'joined' ? `REMOTE (${collaborationService.roomId})` : projectName.toUpperCase()}
+              </span>
             </div>
           )}
 
           {/* Open Folder button */}
-          {!projectRoot ? (
+          {(!projectRoot && collabStatus !== 'joined') ? (
             <div className="sidebar-open-folder">
               <button
                 className="btn-open-folder"
@@ -715,6 +777,21 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {collabModal && (
+        <CollaborationModal 
+          type={collabModal.type}
+          code={collabModal.code}
+          onClose={() => setCollabModal(null)}
+          onJoin={handleCollabJoin}
+          onCreate={handleCollabCreate}
+        />
+      )}
+
+      {/* Permissions Modal */}
+      {showPermissions && (
+        <PermissionsModal onClose={() => setShowPermissions(false)} />
       )}
     </div>
   )

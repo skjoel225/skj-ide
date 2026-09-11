@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import AudioPanel from '../Collaboration/AudioPanel'
 import './TitleBar.css'
 
 const api = window.electronAPI
@@ -16,10 +17,15 @@ export default function TitleBar({
   onToggleAutoSave,
   onOpenSettings,
   theme,
-  onThemeChange
+  onThemeChange,
+  onCollabCreate,
+  onCollabJoin,
+  isHost,
+  onCollabPermissions
 }) {
   const [isMaximized, setIsMaximized] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [collabMenuOpen, setCollabMenuOpen] = useState(false)
   const [recentOpen, setRecentOpen] = useState(false)
   const [themeOpen, setThemeOpen] = useState(false)
   const menuRef = useRef(null)
@@ -30,6 +36,7 @@ export default function TitleBar({
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false)
+        setCollabMenuOpen(false)
         setRecentOpen(false)
         setThemeOpen(false)
       }
@@ -51,9 +58,15 @@ export default function TitleBar({
         <div className="menubar" ref={menuRef}>
           <div 
             className={`menubar-item ${menuOpen ? 'active' : ''}`}
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => { setMenuOpen(!menuOpen); setCollabMenuOpen(false); }}
           >
             File
+          </div>
+          <div 
+            className={`menubar-item ${collabMenuOpen ? 'active' : ''}`}
+            onClick={() => { setCollabMenuOpen(!collabMenuOpen); setMenuOpen(false); }}
+          >
+            Collaborate
           </div>
           
           {menuOpen && (
@@ -152,6 +165,25 @@ export default function TitleBar({
               </div>
             </div>
           )}
+
+          {collabMenuOpen && (
+            <div className="menu-dropdown" style={{ left: '50px' }}>
+              <div className="menu-entry" onClick={() => { onCollabCreate(); setCollabMenuOpen(false); }}>
+                <span>Create Session...</span>
+              </div>
+              <div className="menu-entry" onClick={() => { onCollabJoin(); setCollabMenuOpen(false); }}>
+                <span>Join Session...</span>
+              </div>
+              {isHost && (
+                <>
+                  <div className="menu-divider"></div>
+                  <div className="menu-entry" onClick={() => { onCollabPermissions(); setCollabMenuOpen(false); }}>
+                    <span>Manage Permissions...</span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {projectName && (
@@ -165,7 +197,9 @@ export default function TitleBar({
       {/* Center: drag region */}
       <div className="titlebar-drag" />
 
-      {/* Right: Window controls */}
+      {/* Right: Audio Panel + Window controls */}
+      <AudioPanel />
+      
       <div className="titlebar-controls">
         <button
           className="titlebar-btn btn-minimize"

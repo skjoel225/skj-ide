@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react'
 import Editor from '@monaco-editor/react'
 import { detectLanguage } from '../../utils/languageDetector'
+import { collaborationService } from '../../services/collaborationService'
 import './EditorPane.css'
 
 // SKJ IDE Monaco theme
@@ -46,6 +47,13 @@ export default function EditorPane({ activeTab, tabs, onChange, onCursorChange, 
 
   const activeFile = tabs.find(t => t.path === activeTab)
   const language = activeFile ? detectLanguage(activeFile.path) : 'plaintext'
+  const oldDecorationsRef = useRef([])
+  const remoteCursorsRef = useRef(new Map())
+  const activeTabRef = useRef(activeTab)
+
+  useEffect(() => {
+    activeTabRef.current = activeTab
+  }, [activeTab])
 
   const handleEditorDidMount = useCallback((editor, monaco) => {
     editorRef.current = editor
@@ -62,6 +70,12 @@ export default function EditorPane({ activeTab, tabs, onChange, onCursorChange, 
           lineNumber: e.position.lineNumber,
           column: e.position.column,
         })
+      }
+      if (activeTabRef.current) {
+        collaborationService.sendCursorMove(activeTabRef.current, {
+          lineNumber: e.position.lineNumber,
+          column: e.position.column,
+        });
       }
     })
 
@@ -81,6 +95,84 @@ export default function EditorPane({ activeTab, tabs, onChange, onCursorChange, 
       setTimeout(() => editorRef.current?.focus(), 50)
     }
   }, [activeTab])
+
+  // Remote cursors listener
+  useEffect(() => {
+    const unsub = collaborationService.onChange('cursor-update', (data) => {
+      if (!activeTab || data.path !== activeTab) {
+        // Cursor is in another file, ignore or remove from this editor
+        remoteCursorsRef.current.delete(data.userId);
+      } else {
+        remoteCursorsRef.current.set(data.userId, data);
+      }
+      
+      // Update decorations
+      if (editorRef.current && monacoRef.current) {
+        const monaco = monacoRef.current;
+        const newDecorations = [];
+        const colors = ['#f56565', '#ed8936', '#ecc94b', '#48bb78', '#38b2ac', '#4299e1', '#667eea', '#9f7aea', '#ed64a6'];
+        
+        let i = 0;
+        for (const [userId, cursor] of remoteCursorsRef.current.entries()) {
+          const color = colors[i % colors.length];
+          const className = `remote-cursor-${userId}`;
+          
+          // Inject dynamic CSS class if not exists
+          if (!document.getElementById(className)) {
+            const style = document.createElement('style');
+            style.id = className;
+            style.innerHTML = `
+              .${className} {
+                position: absolute;
+                height: 1.5em;
+                border-left: 2px solid ${color};
+                z-index: 10;
+                pointer-events: none;
+              }
+              .${className}::after {
+                content: '${cursor.username || 'User'}';
+                position: absolute;
+                top: -16px;
+                left: 0px;
+                background-color: ${color};
+                color: white;
+                font-size: 10px;
+                padding: 2px 6px;
+                border-radius: 4px 4px 4px 0;
+                white-space: nowrap;
+                opacity: 0.9;
+                pointer-events: none;
+              }
+            `;
+            document.head.appendChild(style);
+          }
+          
+          newDecorations.push({
+            range: new monaco.Range(
+              cursor.position.lineNumber,
+              cursor.position.column,
+              cursor.position.lineNumber,
+              cursor.position.column
+            ),
+            options: {
+              beforeContentClassName: className,
+              stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+            }
+          });
+          i++;
+        }
+        
+        oldDecorationsRef.current = editorRef.current.deltaDecorations(
+          oldDecorationsRef.current,
+          newDecorations
+        );
+      }
+    });
+
+    return () => {
+      unsub();
+    };
+  }, [activeTab]);
 
   if (!activeFile) {
     return (

@@ -8,6 +8,7 @@
  */
 
 const api = window.electronAPI
+import { collaborationService } from './collaborationService';
 
 export const fileService = {
   /**
@@ -16,6 +17,9 @@ export const fileService = {
    * @returns {Promise<FileNode[]>}
    */
   async readDir(dirPath) {
+    if (collaborationService.roomId && !collaborationService.isHost) {
+      return await collaborationService.requestFileTree();
+    }
     return await api.fs.readDir(dirPath)
   },
 
@@ -25,6 +29,9 @@ export const fileService = {
    * @returns {Promise<{content: string, size: number}>}
    */
   async readFile(filePath) {
+    if (collaborationService.roomId && !collaborationService.isHost) {
+      return await collaborationService.requestFileContent(filePath);
+    }
     return await api.fs.readFile(filePath)
   },
 
@@ -35,6 +42,16 @@ export const fileService = {
    * @returns {Promise<{success: boolean}>}
    */
   async writeFile(filePath, content) {
+    if (collaborationService.roomId) {
+      if (!collaborationService.isHost) {
+        collaborationService.saveFile(filePath, content);
+        return { success: true };
+      } else {
+        const result = await api.fs.writeFile(filePath, content);
+        collaborationService.syncFileEdit(filePath, content);
+        return result;
+      }
+    }
     return await api.fs.writeFile(filePath, content)
   },
 
@@ -44,6 +61,9 @@ export const fileService = {
    * @returns {Promise<{success: boolean}>}
    */
   async createFile(filePath) {
+    if (collaborationService.roomId && !collaborationService.isHost) {
+      return await collaborationService.performFileAction('createFile', [filePath]);
+    }
     return await api.fs.createFile(filePath)
   },
 
@@ -53,6 +73,9 @@ export const fileService = {
    * @returns {Promise<{success: boolean}>}
    */
   async createFolder(folderPath) {
+    if (collaborationService.roomId && !collaborationService.isHost) {
+      return await collaborationService.performFileAction('createFolder', [folderPath]);
+    }
     return await api.fs.createFolder(folderPath)
   },
 
@@ -63,6 +86,9 @@ export const fileService = {
    * @returns {Promise<{success: boolean}>}
    */
   async rename(oldPath, newPath) {
+    if (collaborationService.roomId && !collaborationService.isHost) {
+      return await collaborationService.performFileAction('rename', [oldPath, newPath]);
+    }
     return await api.fs.rename(oldPath, newPath)
   },
 
@@ -73,6 +99,9 @@ export const fileService = {
    * @returns {Promise<{success: boolean}>}
    */
   async delete(targetPath, isDir) {
+    if (collaborationService.roomId && !collaborationService.isHost) {
+      return await collaborationService.performFileAction('delete', [targetPath, isDir]);
+    }
     return await api.fs.delete(targetPath, isDir)
   },
 

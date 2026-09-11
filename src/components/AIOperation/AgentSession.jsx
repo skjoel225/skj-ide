@@ -4,6 +4,7 @@ import AgentMessage from '../AIChat/AgentMessage';
 import PermissionDialog from '../AIChat/PermissionDialog';
 import ChatInput from '../AIChat/ChatInput';
 import { contextManager } from '../../services/contextManager';
+import { collaborationService } from '../../services/collaborationService';
 import '../AIChat/ChatPanel.css';
 
 export default function AgentSession({ session, onUpdateSession, projectName, projectRoot, fileTree, activeTab, tabs }) {
@@ -26,17 +27,13 @@ export default function AgentSession({ session, onUpdateSession, projectName, pr
   }, [messages, isLoading, agentStatus, streamingText]);
 
   useEffect(() => {
-    if (!window.electronAPI || !window.electronAPI.ai) return;
-
     const handleAgentStatus = (status) => {
-      if (status.sessionId === sessionId) {
+      if (status.sessionId === sessionId || !status.sessionId) {
         setAgentStatus(status);
       }
     };
 
     const handlePermissionRequest = (req) => {
-      // Permission requests don't inherently carry sessionId in the current IPC design, 
-      // but they are global blocking dialogs for safety. We could pass sessionId if needed.
       setPermissionRequest(req);
     };
 
@@ -46,17 +43,28 @@ export default function AgentSession({ session, onUpdateSession, projectName, pr
       }
     };
 
-    // Note: To avoid attaching multiple listeners per session, we manage this 
-    // carefully or use the AgentTabsView to route events. For simplicity here, 
-    // we listen to all and filter by sessionId.
-    window.electronAPI.ai.onAgentStatus(handleAgentStatus);
-    window.electronAPI.ai.onAgentMessageChunk(handleMessageChunk);
-    window.electronAPI.ai.onRequestPermission(handlePermissionRequest);
+    if (window.electronAPI && window.electronAPI.ai) {
+      window.electronAPI.ai.onAgentStatus(handleAgentStatus);
+      window.electronAPI.ai.onAgentMessageChunk(handleMessageChunk);
+      window.electronAPI.ai.onRequestPermission(handlePermissionRequest);
+    }
+
+    // Collaboration Listeners
+    const cleanupChunk = collaborationService.onChange('ai-chunk', handleMessageChunk);
+    const cleanupStatus = collaborationService.onChange('ai-status', handleAgentStatus);
+    const cleanupResponse = collaborationService.onChange('ai-response', (data) => {
+      if (data.sessionId === sessionId) {
+        onUpdateSession(sessionId, { messages: data.response.messages });
+        setIsLoading(false);
+        setAgentStatus(null);
+        setStreamingText('');
+      }
+    });
 
     return () => {
-      // We don't remove all listeners because other tabs might be listening.
-      // In a real app we'd need an event bus or custom routing, 
-      // but IPC `on` can have multiple listeners.
+      cleanupChunk();
+      cleanupStatus();
+      cleanupResponse();
     };
   }, [sessionId]);
 
@@ -85,20 +93,29 @@ export default function AgentSession({ session, onUpdateSession, projectName, pr
         userMessage
       ];
 
-      const response = await window.electronAPI.ai.runAgent(messagesToSend, projectRoot || projectName, sessionId);
+      if (collaborationService.roomId && !collaborationService.isHost) {
+        // Guest mode: send request to Host
+        collaborationService.sendAIRequest(messagesToSend, sessionId);
+        // We will receive 'ai-response' eventually, don't set loading false here
+      } else {
+        // Host mode or Offline
+        const response = await window.electronAPI.ai.runAgent(messagesToSend, projectRoot || projectName, sessionId);
 
-      if (!response.success) {
-        throw new Error(response.error);
+        if (!response.success) {
+          throw new Error(response.error);
+        }
+
+        onUpdateSession(sessionId, { messages: response.messages });
+        setIsLoading(false);
+        setAgentStatus(null);
+        setStreamingText('');
       }
-
-      onUpdateSession(sessionId, { messages: response.messages });
     } catch (err) {
       if (err.message === 'OFFLINE_ERROR' || (err.message && err.message.includes('OFFLINE_ERROR'))) {
         setError('Internet indisponible. Les fonctionnalités locales de SKJ IDE continuent de fonctionner. Les fonctions IA nécessitant DeepSeek sont temporairement indisponibles.');
       } else {
         setError(err.message || 'Une erreur est survenue.');
       }
-    } finally {
       setIsLoading(false);
       setAgentStatus(null);
       setStreamingText('');

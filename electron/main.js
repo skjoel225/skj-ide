@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, session } = require('electron')
 const path = require('path')
 
 // Import IPC handlers
@@ -61,6 +61,14 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Auto-allow permissions (like Microphone for WebRTC and Speech Recognition)
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    callback(true)
+  })
+  session.defaultSession.setPermissionCheckHandler((webContents, permission) => {
+    return true
+  })
+
   const win = createWindow()
 
   // Register all IPC handlers
