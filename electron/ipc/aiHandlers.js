@@ -1,5 +1,5 @@
 const { ipcMain } = require('electron');
-const deepseekService = require('../services/deepseekService');
+const aiClient = require('../services/aiClient');
 const agentService = require('../services/agentService');
 const orchestrator = require('../orchestration/orchestrator');
 const rollbackManager = require('../history/rollbackManager');
@@ -8,7 +8,7 @@ const migrationManager = require('../migration/migrationManager');
 function registerAIHandlers(mainWindow) {
   ipcMain.handle('ai:sendMessage', async (event, messages) => {
     try {
-      const response = await deepseekService.sendMessage(messages);
+      const response = await aiClient.sendMessage(messages);
       return { success: true, data: response };
     } catch (err) {
       return { success: false, error: err.message };
@@ -17,11 +17,16 @@ function registerAIHandlers(mainWindow) {
 
   ipcMain.handle('ai:testConnection', async () => {
     try {
-      await deepseekService.testConnection();
+      await aiClient.testConnection();
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
     }
+  });
+
+  // L'enregistrement de clé locale n'est plus supporté dans la nouvelle architecture
+  ipcMain.handle('api:set-key', async (event, key) => {
+    return { success: false, error: 'La configuration de la clé se fait désormais uniquement sur le backend sécurisé.' };
   });
 
   ipcMain.handle('ai:runAgent', async (event, messages, workspace, sessionId) => {

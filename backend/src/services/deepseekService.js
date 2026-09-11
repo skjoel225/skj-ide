@@ -1,51 +1,10 @@
-const { app } = require('electron');
-const dotenv = require('dotenv');
-const path = require('path');
-const fs = require('fs');
-
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
 class DeepSeekService {
-  constructor() {
-    this.apiKey = process.env.DEEPSEEK_API_KEY;
-  }
-
-  getApiKey() {
-    // Try to load from project root .env first (development)
-    const envPath = path.join(process.cwd(), '.env');
-    if (fs.existsSync(envPath)) {
-      dotenv.config({ path: envPath });
-      if (process.env.DEEPSEEK_API_KEY) {
-        this.apiKey = process.env.DEEPSEEK_API_KEY;
-        return this.apiKey;
-      }
-    }
-
-    // Then try to load from user data config.json (production)
-    try {
-      const userDataPath = app.getPath('userData');
-      const configPath = path.join(userDataPath, 'config.json');
-      if (fs.existsSync(configPath)) {
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        if (config.DEEPSEEK_API_KEY) {
-          this.apiKey = config.DEEPSEEK_API_KEY;
-        }
-      }
-    } catch (e) {
-      console.warn("Could not read API key from config.json", e);
-    }
-
-    return this.apiKey;
-  }
-
-  /**
-   * Test the connection to the DeepSeek API
-   * @returns {Promise<boolean>}
-   */
   async testConnection() {
-    const key = this.getApiKey();
+    const key = process.env.DEEPSEEK_API_KEY;
     if (!key) {
-      throw new Error('DeepSeek API key is not configured.');
+      throw new Error('DeepSeek API key is not configured on the backend.');
     }
 
     try {
@@ -75,15 +34,10 @@ class DeepSeekService {
     }
   }
 
-  /**
-   * Send a chat message with full conversation history to DeepSeek
-   * @param {Array<{role: string, content: string}>} messages 
-   * @returns {Promise<string>}
-   */
   async sendMessage(messages, tools = null) {
-    const currentKey = this.getApiKey();
+    const currentKey = process.env.DEEPSEEK_API_KEY;
     if (!currentKey) {
-      throw new Error('La clé API DeepSeek n\'est pas configurée. Veuillez l\'ajouter dans vos paramètres.');
+      throw new Error('La clé API DeepSeek n\'est pas configurée sur le backend.');
     }
 
     try {

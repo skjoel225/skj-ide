@@ -1,4 +1,4 @@
-const deepseekService = require('../services/deepseekService');
+const aiClient = require('../services/aiClient');
 const toolRegistry = require('../services/toolRegistry');
 const agentTools = require('../tools/agentTools');
 const permissionService = require('../services/permissionService');
@@ -29,7 +29,7 @@ class BaseAgent {
       onStatusUpdate(`Thinking (Step ${steps})`);
 
       try {
-        const response = await deepseekService.sendMessage(messages, toolRegistry.getToolsSchema());
+        const response = await aiClient.sendMessage(messages, toolRegistry.getToolsSchema());
 
         if (!response.success) {
           return { success: false, error: response.error };

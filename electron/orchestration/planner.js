@@ -1,4 +1,4 @@
-const deepseekService = require('../services/deepseekService');
+const aiClient = require('../services/aiClient');
 
 class Planner {
   /**
@@ -37,7 +37,7 @@ Ensure that steps are in logical execution order.`;
     ];
 
     try {
-      const response = await deepseekService.sendMessage(messages);
+      const response = await aiClient.sendMessage(messages);
       
       if (!response.success) {
         throw new Error(`Planner API Error: ${response.error}`);

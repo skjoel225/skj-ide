@@ -1,4 +1,4 @@
-const deepseekService = require('./deepseekService');
+const aiClient = require('./aiClient');
 const toolRegistry = require('./toolRegistry');
 const permissionService = require('./permissionService');
 const { ipcMain } = require('electron');
@@ -33,7 +33,7 @@ class AgentService {
         // Notify frontend that we are thinking
         this.notifyFrontend('agent:status', { sessionId, status: 'thinking' });
 
-        const responseMessage = await deepseekService.sendMessage(messages, toolsSchema);
+        const responseMessage = await aiClient.sendMessage(messages, toolsSchema);
         
         messages.push(responseMessage);
 
