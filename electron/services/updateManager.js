@@ -5,8 +5,8 @@ class UpdateManager {
   constructor() {
     this.mainWindow = null;
 
-    autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = false;
+    autoUpdater.autoDownload = true;
+    autoUpdater.autoInstallOnAppQuit = true;
 
     // Events
     autoUpdater.on('checking-for-update', () => {

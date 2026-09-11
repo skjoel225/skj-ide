@@ -12,12 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (os === 'Windows') {
     downloadBtn.querySelector('.text').textContent = 'Télécharger pour Windows';
-    versionInfo.textContent = 'Version 1.2.1 • Windows 10/11';
-    downloadBtn.href = 'https://github.com/skjoel225/skj-ide/releases/download/v1.2.1/SKJ-IDE-Setup-1.2.1.exe';
+    versionInfo.textContent = 'Version 1.2.2 • Windows 10/11';
+    downloadBtn.href = 'https://github.com/skjoel225/skj-ide/releases/download/v1.2.2/SKJ-IDE-Setup-1.2.2.exe';
   } else {
     downloadBtn.querySelector('.text').textContent = `Télécharger pour Windows`;
-    versionInfo.textContent = `Version 1.2.1 • Vous semblez être sur ${os}, mais seul Windows est supporté pour le moment.`;
-    downloadBtn.href = 'https://github.com/skjoel225/skj-ide/releases/download/v1.2.1/SKJ-IDE-Setup-1.2.1.exe';
+    versionInfo.textContent = `Version 1.2.2 • Vous semblez être sur ${os}, mais seul Windows est supporté pour le moment.`;
+    downloadBtn.href = 'https://github.com/skjoel225/skj-ide/releases/download/v1.2.2/SKJ-IDE-Setup-1.2.2.exe';
   }
 
   // Simulate download click

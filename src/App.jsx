@@ -12,6 +12,7 @@ import MigrationModal from './components/Migration/MigrationModal'
 import MigrationSettings from './components/Settings/MigrationSettings'
 import CollaborationModal from './components/Collaboration/CollaborationModal'
 import PermissionsModal from './components/Collaboration/PermissionsModal'
+import UpdateNotification from './components/Updater/UpdateNotification'
 import { fileService } from './services/fileService'
 import { projectService } from './services/projectService'
 import { collaborationService } from './services/collaborationService'
@@ -187,6 +188,13 @@ export default function App() {
     };
     
     setTimeout(restoreSession, 100);
+
+    // Check for updates
+    if (window.electronAPI && window.electronAPI.updater) {
+      setTimeout(() => {
+        window.electronAPI.updater.check().catch(console.error);
+      }, 5000); // Check 5 seconds after startup
+    }
   }, [handleOpenFolder])
 
   // Watch file changes and refresh tree
@@ -815,6 +823,9 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Notifications and Modals */}
+      <UpdateNotification />
 
       {showMigrationModal && (
         <MigrationModal 
