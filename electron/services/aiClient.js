@@ -1,7 +1,7 @@
 const { app } = require('electron');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-const BACKEND_URL = isDev ? 'http://localhost:3000' : 'https://skj-ide-api.onrender.com';
+const BACKEND_URL = isDev ? 'http://localhost:3000' : 'https://skj-ide.onrender.com';
 const SKJ_APP_TOKEN = 'skj-default-dev-token-xyz123'; // Token partagé avec le backend
 
 class AIClient {
