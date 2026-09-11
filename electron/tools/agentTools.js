@@ -2,6 +2,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const { exec } = require('child_process');
 const util = require('util');
+const https = require('https');
 const execAsync = util.promisify(exec);
 
 // Security checks
@@ -161,11 +162,54 @@ async function runCommandTool(workspace, args) {
   }
 }
 
+async function createDirTool(workspace, args) {
+  try {
+    const targetPath = resolveAndValidatePath(workspace, args.path);
+    await fs.mkdir(targetPath, { recursive: true });
+    return { success: true, path: args.path };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+async function searchWebTool(workspace, args) {
+  return new Promise((resolve) => {
+    const query = encodeURIComponent(args.query);
+    // DuckDuckGo Lite HTML interface for simple scraping without API key
+    const url = `https://lite.duckduckgo.com/lite/?q=${query}`;
+    
+    https.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+      }
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        // Extract basic snippets from HTML
+        const snippets = [];
+        const regex = /class="result-snippet">([\s\S]*?)<\/td>/g;
+        let match;
+        while ((match = regex.exec(data)) !== null && snippets.length < 5) {
+          // Remove HTML tags
+          let text = match[1].replace(/<\/?[^>]+(>|$)/g, "").trim();
+          if (text) snippets.push(text);
+        }
+        resolve({ success: true, results: snippets.length > 0 ? snippets : ['No immediate snippets found.'] });
+      });
+    }).on('error', (err) => {
+      resolve({ success: false, error: err.message });
+    });
+  });
+}
+
 module.exports = {
   readFileTool,
   writeFileTool,
   editFileTool,
   listFilesTool,
   searchCodeTool,
-  runCommandTool
+  runCommandTool,
+  createDirTool,
+  searchWebTool
 };

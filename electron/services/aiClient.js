@@ -34,9 +34,10 @@ class AIClient {
    * Send a chat message to the SKJ Backend
    * @param {Array<{role: string, content: string}>} messages 
    * @param {Array} tools 
+   * @param {Function} onChunk Optional callback for streaming
    * @returns {Promise<any>}
    */
-  async sendMessage(messages, tools = null) {
+  async sendMessage(messages, tools = null, onChunk = null) {
     try {
       const payload = {
         messages: messages
@@ -66,11 +67,99 @@ class AIClient {
         throw new Error(errData?.error?.message || `Erreur API backend: ${response.status}`);
       }
 
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.error?.message || 'Erreur inconnue renvoyée par le backend.');
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('text/event-stream')) {
+        // If not a stream (e.g. backend error returned as JSON)
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error?.message || 'Erreur inconnue renvoyée par le backend.');
+        }
+        return data.message;
       }
-      return data.message;
+
+      // Handle streaming
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      
+      let finalMessage = {
+        role: 'assistant',
+        content: '',
+        tool_calls: []
+      };
+
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        
+        // Process lines
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // Keep the last incomplete line in the buffer
+
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (!trimmedLine.startsWith('data:')) continue;
+          
+          const dataStr = trimmedLine.replace(/^data:\s*/, '');
+          if (dataStr === '[DONE]') continue;
+          
+          try {
+            const data = JSON.parse(dataStr);
+            const delta = data.choices && data.choices[0] && data.choices[0].delta;
+            if (!delta) continue;
+
+            // Accumulate content
+            if (delta.content) {
+              finalMessage.content += delta.content;
+              if (onChunk) onChunk({ type: 'content', content: delta.content });
+            }
+
+            // Accumulate tool calls
+            if (delta.tool_calls) {
+              for (const tc of delta.tool_calls) {
+                const index = tc.index;
+                if (!finalMessage.tool_calls[index]) {
+                  finalMessage.tool_calls[index] = {
+                    id: tc.id,
+                    type: tc.type || 'function',
+                    function: { name: '', arguments: '' }
+                  };
+                }
+                if (tc.id) finalMessage.tool_calls[index].id = tc.id;
+                if (tc.function?.name) finalMessage.tool_calls[index].function.name += tc.function.name;
+                if (tc.function?.arguments) finalMessage.tool_calls[index].function.arguments += tc.function.arguments;
+              }
+            }
+          } catch (e) {
+            console.error('Failed to parse SSE line:', line, e);
+          }
+        }
+      }
+
+      // Cleanup trailing buffer if any
+      if (buffer.trim().startsWith('data:')) {
+         const dataStr = buffer.trim().replace(/^data:\s*/, '');
+         if (dataStr !== '[DONE]') {
+            try {
+              const data = JSON.parse(dataStr);
+              if (data.choices && data.choices[0] && data.choices[0].delta?.content) {
+                 finalMessage.content += data.choices[0].delta.content;
+              }
+            } catch (e) {}
+         }
+      }
+
+      // Filter out nulls from tool_calls array (in case of sparse arrays)
+      if (finalMessage.tool_calls.length > 0) {
+        finalMessage.tool_calls = finalMessage.tool_calls.filter(Boolean);
+      } else {
+        delete finalMessage.tool_calls;
+      }
+
+      return finalMessage;
 
     } catch (err) {
       if (err.name === 'AbortError') {

@@ -64,6 +64,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // Events
     onOrchestratorStatus: (cb) => ipcRenderer.on('ai:orchestrator-status', (_, data) => cb(data)),
     onAgentStatus: (cb) => ipcRenderer.on('agent:status', (_, data) => cb(data)),
+    onAgentMessageChunk: (cb) => ipcRenderer.on('agent:message-chunk', (_, data) => cb(data)),
     onRequestPermission: (cb) => ipcRenderer.on('ai:request-permission', (_, data) => cb(data)),
     sendPermissionResponse: (id, allowed) => ipcRenderer.send('agent:permission-response', { id, allowed }),
     onFileChanged: (cb) => ipcRenderer.on('agent:file-changed', (_, data) => cb(data)),

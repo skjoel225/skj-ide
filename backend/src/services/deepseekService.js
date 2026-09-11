@@ -42,9 +42,10 @@ class DeepSeekService {
 
     try {
       const payload = {
-        model: 'deepseek-v4-pro',
+        model: 'deepseek-v4-pro', // or 'deepseek-chat' / 'deepseek-coder' depending on actual API model names
         messages: messages,
-        temperature: 0.2
+        temperature: 0.2,
+        stream: true
       };
 
       if (tools) {
@@ -68,8 +69,8 @@ class DeepSeekService {
         throw new Error(`API error: ${response.status} ${errText}`);
       }
 
-      const data = await response.json();
-      return data.choices[0].message;
+      // Return the raw response so the router can stream it
+      return response;
 
     } catch (err) {
       if (err.name === 'AbortError') {

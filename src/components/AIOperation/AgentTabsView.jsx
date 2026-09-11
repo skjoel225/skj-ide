@@ -3,12 +3,31 @@ import AgentSession from './AgentSession';
 import './AgentTabsView.css';
 
 export default function AgentTabsView(props) {
-  const [sessions, setSessions] = useState([
-    { id: 'session-1', name: 'Agent 1', messages: [] }
-  ]);
-  const [activeSessionId, setActiveSessionId] = useState('session-1');
+  const [sessions, setSessions] = useState(() => {
+    const saved = localStorage.getItem('skj.agentSessions');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return [{ id: 'session-1', name: 'Agent 1', messages: [] }];
+  });
+  const [activeSessionId, setActiveSessionId] = useState(() => {
+    const saved = localStorage.getItem('skj.activeSessionId');
+    return saved || 'session-1';
+  });
   const [editSessionId, setEditSessionId] = useState(null);
   const [editName, setEditName] = useState('');
+
+  // Auto-save sessions when they change
+  React.useEffect(() => {
+    localStorage.setItem('skj.agentSessions', JSON.stringify(sessions));
+  }, [sessions]);
+
+  // Auto-save active session ID
+  React.useEffect(() => {
+    localStorage.setItem('skj.activeSessionId', activeSessionId);
+  }, [activeSessionId]);
 
   const handleAddSession = () => {
     const newId = `session-${Date.now()}`;
@@ -23,6 +42,12 @@ export default function AgentTabsView(props) {
 
   const handleUpdateSession = (id, updates) => {
     setSessions(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+
+  const handleClearSession = (id) => {
+    if (window.confirm("Voulez-vous vraiment effacer l'historique de cet agent ?")) {
+      handleUpdateSession(id, { messages: [] });
+    }
   };
 
   const startRename = (session) => {
@@ -61,12 +86,15 @@ export default function AgentTabsView(props) {
                   className="agent-tab-input"
                 />
               ) : (
-                <span className="agent-tab-name">{s.name}</span>
+                <span className="agent-tab-name" title="Double-clic pour renommer">{s.name}</span>
               )}
             </div>
           ))}
         </div>
-        <button className="agent-tab-add" onClick={handleAddSession} title="New Agent">+</button>
+        <div className="agent-tabs-actions" style={{ display: 'flex', gap: '5px' }}>
+          <button className="agent-tab-add" onClick={() => handleClearSession(activeSessionId)} title="Effacer la mémoire" style={{ fontSize: '14px', background: 'transparent', border: 'none', color: '#ff6b6b', cursor: 'pointer' }}>🗑️</button>
+          <button className="agent-tab-add" onClick={handleAddSession} title="Nouvel Agent">+</button>
+        </div>
       </div>
       
       <div className="agent-tabs-content">

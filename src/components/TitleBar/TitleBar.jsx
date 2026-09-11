@@ -14,11 +14,14 @@ export default function TitleBar({
   recentProjects = [],
   autoSave,
   onToggleAutoSave,
-  onOpenSettings
+  onOpenSettings,
+  theme,
+  onThemeChange
 }) {
   const [isMaximized, setIsMaximized] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [recentOpen, setRecentOpen] = useState(false)
+  const [themeOpen, setThemeOpen] = useState(false)
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -28,6 +31,7 @@ export default function TitleBar({
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false)
         setRecentOpen(false)
+        setThemeOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -112,6 +116,30 @@ export default function TitleBar({
               <div className="menu-entry" onClick={() => { onToggleAutoSave(); setMenuOpen(false); }}>
                 <span>Auto Save</span>
                 <span className="menu-shortcut">{autoSave ? '✓' : ''}</span>
+              </div>
+              <div 
+                className="menu-entry has-submenu" 
+                onMouseEnter={() => setThemeOpen(true)}
+                onMouseLeave={() => setThemeOpen(false)}
+              >
+                <span>Theme ({theme})</span>
+                <span className="menu-shortcut">›</span>
+                {themeOpen && (
+                  <div className="submenu-dropdown">
+                    <div className="menu-entry" onClick={() => { onThemeChange('dark'); setMenuOpen(false); setThemeOpen(false); }}>
+                      <span>Dark</span>
+                      <span className="menu-shortcut">{theme === 'dark' ? '✓' : ''}</span>
+                    </div>
+                    <div className="menu-entry" onClick={() => { onThemeChange('light'); setMenuOpen(false); setThemeOpen(false); }}>
+                      <span>Light</span>
+                      <span className="menu-shortcut">{theme === 'light' ? '✓' : ''}</span>
+                    </div>
+                    <div className="menu-entry" onClick={() => { onThemeChange('synthwave'); setMenuOpen(false); setThemeOpen(false); }}>
+                      <span>Synthwave</span>
+                      <span className="menu-shortcut">{theme === 'synthwave' ? '✓' : ''}</span>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="menu-entry" onClick={() => { onOpenSettings(); setMenuOpen(false); }}>
                 <span>Preferences</span>

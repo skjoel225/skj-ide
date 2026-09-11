@@ -4,7 +4,9 @@ const {
   editFileTool, 
   listFilesTool, 
   searchCodeTool, 
-  runCommandTool 
+  runCommandTool,
+  createDirTool,
+  searchWebTool
 } = require('../tools/agentTools');
 
 class ToolRegistry {
@@ -95,6 +97,34 @@ class ToolRegistry {
             required: ['command']
           }
         }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'create_directory',
+          description: 'Create a new empty directory in the workspace.',
+          parameters: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Relative path of the new directory to create.' }
+            },
+            required: ['path']
+          }
+        }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'search_web',
+          description: 'Search the internet for up-to-date documentation, solutions to bugs, or general knowledge.',
+          parameters: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'The search query.' }
+            },
+            required: ['query']
+          }
+        }
       }
     ];
 
@@ -104,7 +134,9 @@ class ToolRegistry {
       'edit_file': editFileTool,
       'list_files': listFilesTool,
       'search_code': searchCodeTool,
-      'run_command': runCommandTool
+      'run_command': runCommandTool,
+      'create_directory': createDirTool,
+      'search_web': searchWebTool
     };
   }
 

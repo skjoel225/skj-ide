@@ -33,7 +33,11 @@ class AgentService {
         // Notify frontend that we are thinking
         this.notifyFrontend('agent:status', { sessionId, status: 'thinking' });
 
-        const responseMessage = await aiClient.sendMessage(messages, toolsSchema);
+        const responseMessage = await aiClient.sendMessage(messages, toolsSchema, (chunk) => {
+          if (chunk.type === 'content') {
+            this.notifyFrontend('agent:message-chunk', { sessionId, chunk: chunk.content });
+          }
+        });
         
         messages.push(responseMessage);
 

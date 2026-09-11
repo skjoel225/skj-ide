@@ -22,12 +22,12 @@ class PermissionService {
 
   async checkPermission(toolName, args) {
     // Read operations are auto-allowed
-    if (['read_file', 'list_files', 'search_code'].includes(toolName)) {
+    if (['read_file', 'list_files', 'search_code', 'search_web'].includes(toolName)) {
       return true;
     }
 
     // Write operations and commands require confirmation
-    if (['write_file', 'edit_file', 'run_command'].includes(toolName)) {
+    if (['write_file', 'edit_file', 'run_command', 'create_directory'].includes(toolName)) {
       return await this.requestUserConfirmation(toolName, args);
     }
 

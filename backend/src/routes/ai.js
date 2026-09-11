@@ -1,4 +1,5 @@
 const express = require('express');
+const { Readable } = require('stream');
 const router = express.Router();
 const deepseekService = require('../services/deepseekService');
 
@@ -13,11 +14,24 @@ router.post('/chat', async (req, res) => {
       });
     }
 
-    const responseMessage = await deepseekService.sendMessage(messages, tools);
+    const deepseekRes = await deepseekService.sendMessage(messages, tools);
     
-    res.json({
-      success: true,
-      message: responseMessage
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Pipe the stream directly to the client
+    if (deepseekRes.body && typeof deepseekRes.body.pipe === 'function') {
+      deepseekRes.body.pipe(res);
+    } else if (deepseekRes.body) {
+      Readable.fromWeb(deepseekRes.body).pipe(res);
+    } else {
+      res.end();
+    }
+    
+    req.on('close', () => {
+      // Clean up if connection is closed early
     });
   } catch (error) {
     console.error('[AI] Request error:', error.message);

@@ -52,6 +52,12 @@ export default function App() {
   const [chatWidth, setChatWidth] = useState(400)
   const [isDraggingChat, setIsDraggingChat] = useState(false)
   const [isChatOpen, setIsChatOpen] = useState(true)
+  const [theme, setTheme] = useState(() => localStorage.getItem('skj.theme') || 'dark')
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme === 'dark' ? '' : theme)
+    localStorage.setItem('skj.theme', theme)
+  }, [theme])
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
@@ -483,6 +489,8 @@ export default function App() {
         autoSave={autoSave}
         onToggleAutoSave={() => setAutoSave(!autoSave)}
         onOpenSettings={() => setShowSettings(true)}
+        theme={theme}
+        onThemeChange={setTheme}
       />
 
       {/* Main area */}

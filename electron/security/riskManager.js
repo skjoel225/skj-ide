@@ -4,7 +4,11 @@ class RiskManager {
    * Returns 'low', 'medium', 'high', or 'critical'.
    */
   assessRisk(toolName, args) {
-    if (['read_file', 'list_files', 'search_code'].includes(toolName)) {
+    if (['read_file', 'list_files', 'search_code', 'search_web'].includes(toolName)) {
+      return 'low';
+    }
+
+    if (toolName === 'create_directory') {
       return 'low';
     }
 

@@ -13,6 +13,7 @@ export default function AgentSession({ session, onUpdateSession, projectName, pr
   
   const [agentStatus, setAgentStatus] = useState(null);
   const [permissionRequest, setPermissionRequest] = useState(null);
+  const [streamingText, setStreamingText] = useState('');
   
   const messagesEndRef = useRef(null);
   
@@ -22,7 +23,7 @@ export default function AgentSession({ session, onUpdateSession, projectName, pr
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading, agentStatus]);
+  }, [messages, isLoading, agentStatus, streamingText]);
 
   useEffect(() => {
     if (!window.electronAPI || !window.electronAPI.ai) return;
@@ -39,10 +40,17 @@ export default function AgentSession({ session, onUpdateSession, projectName, pr
       setPermissionRequest(req);
     };
 
+    const handleMessageChunk = (data) => {
+      if (data.sessionId === sessionId) {
+        setStreamingText(prev => prev + data.chunk);
+      }
+    };
+
     // Note: To avoid attaching multiple listeners per session, we manage this 
     // carefully or use the AgentTabsView to route events. For simplicity here, 
     // we listen to all and filter by sessionId.
     window.electronAPI.ai.onAgentStatus(handleAgentStatus);
+    window.electronAPI.ai.onAgentMessageChunk(handleMessageChunk);
     window.electronAPI.ai.onRequestPermission(handlePermissionRequest);
 
     return () => {
@@ -66,6 +74,7 @@ export default function AgentSession({ session, onUpdateSession, projectName, pr
     // Optimistic update
     onUpdateSession(sessionId, { messages: [...messages, userMessage] });
     setIsLoading(true);
+    setStreamingText('');
 
     try {
       const systemPrompt = contextManager.buildSystemPrompt(projectName, fileTree, activeTab, tabs);
@@ -92,6 +101,7 @@ export default function AgentSession({ session, onUpdateSession, projectName, pr
     } finally {
       setIsLoading(false);
       setAgentStatus(null);
+      setStreamingText('');
     }
   };
 
@@ -114,6 +124,10 @@ export default function AgentSession({ session, onUpdateSession, projectName, pr
         {messages.map((msg, i) => (
           <AgentMessage key={i} message={msg} agentStatus={agentStatus} />
         ))}
+
+        {streamingText && (
+          <AgentMessage message={{ role: 'assistant', content: streamingText }} agentStatus={agentStatus} />
+        )}
         
         {isLoading && (
           <div className="chat-loading">
