@@ -91,8 +91,9 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-width: 85%;
+  max-width: 95%;
   margin-bottom: 8px;
+  width: 100%;
 }
 
 .chat-message-user {
@@ -114,28 +115,24 @@
 .chat-message-content {
   font-size: 13px;
   line-height: 1.5;
+  width: 100%;
 }
 
 .chat-message-user .chat-message-content {
-  background-color: var(--accent-color);
-  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
   padding: 10px 14px;
-  border-radius: 14px 14px 0 14px;
-}
-
-.chat-message-user .chat-message-header {
-  margin-right: 4px;
+  border-radius: 14px;
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
 }
 
 .chat-message-ai .chat-message-content {
-  background-color: var(--bg-secondary);
-  padding: 10px 14px;
-  border-radius: 14px 14px 14px 0;
-  border: 1px solid var(--border-color);
-}
-
-.chat-message-ai .chat-message-header {
-  margin-left: 4px;
+  background-color: transparent;
+  padding: 4px 0;
+  border-radius: 0;
+  border: none;
 }
 
 .chat-text {
@@ -270,43 +267,46 @@
 }
 
 .permission-overlay {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 100;
+  margin-top: 10px;
+  padding-bottom: 15px;
 }
 
 .permission-dialog {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 20px;
-  width: 90%;
-  max-width: 400px;
+  padding: 15px;
+  width: 250px;
+  max-height: 250px;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .permission-title {
   margin: 0 0 10px 0;
-  font-size: 14px;
+  font-size: 13px;
   color: #ff9800;
+  flex-shrink: 0;
 }
 
 .permission-desc {
-  margin: 0 0 15px 0;
-  font-size: 12px;
+  margin: 0 0 10px 0;
+  font-size: 11px;
   color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
 .permission-details {
   background: var(--bg-secondary);
-  padding: 10px;
+  padding: 8px;
   border-radius: 4px;
-  font-size: 12px;
-  margin-bottom: 15px;
+  font-size: 11px;
+  margin-bottom: 10px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .permission-args {

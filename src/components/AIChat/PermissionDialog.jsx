@@ -7,8 +7,8 @@ export default function PermissionDialog({ request, onRespond }) {
   return (
     <div className="permission-overlay">
       <div className="permission-dialog">
-        <h3 className="permission-title">⚠️ Agent Permission Request</h3>
-        <p className="permission-desc">The AI Agent wants to execute the following tool:</p>
+        <h3 className="permission-title">Agent Permission Request</h3>
+        <p className="permission-desc">The agent wants to execute a tool:</p>
         
         <div className="permission-details">
           <strong>Tool:</strong> {request.toolName}<br />
@@ -21,7 +21,7 @@ export default function PermissionDialog({ request, onRespond }) {
         )}
 
         <div className="permission-actions">
-          <button className="btn-cancel" onClick={() => onRespond(false)}>Cancel</button>
+          <button className="btn-cancel" onClick={() => onRespond(false)}>Reject</button>
           <button className="btn-allow" onClick={() => onRespond(true)}>Allow</button>
         </div>
       </div>

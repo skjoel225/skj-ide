@@ -22,6 +22,7 @@
   --bg-float: #252540;
   --bg-hover: #2a2a48;
   --bg-active: #303052;
+  --bg-secondary: #1a1a2e; /* Added to fix transparent popups */
 
   /* Surface overlays */
   --surface-glass: rgba(255, 255, 255, 0.04);

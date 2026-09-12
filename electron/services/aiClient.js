@@ -1,7 +1,8 @@
 const { app } = require('electron');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-const BACKEND_URL = isDev ? 'http://localhost:3000' : 'https://skj-ide.onrender.com';
+// Force using the production backend for now so AI chat works locally without starting the backend
+const BACKEND_URL = process.env.LOCAL_BACKEND ? 'http://localhost:3000' : 'https://skj-ide.onrender.com';
 const SKJ_APP_TOKEN = 'skj-default-dev-token-xyz123'; // Token partagé avec le backend
 
 class AIClient {
