@@ -4,7 +4,11 @@ import FileTree from './components/Explorer/FileTree'
 import ContextMenu from './components/Explorer/ContextMenu'
 import TabBar from './components/Editor/TabBar'
 import EditorPane from './components/Editor/EditorPane'
+import ExtensionDetailsPane from './components/Editor/ExtensionDetailsPane'
 import TerminalTabs from './components/Terminal/TerminalTabs'
+import ActivityBar from './components/ActivityBar/ActivityBar'
+import SearchPane from './components/Sidebar/SearchPane'
+import ExtensionsPane from './components/Sidebar/ExtensionsPane'
 import StatusBar from './components/StatusBar/StatusBar'
 import QuickOpen from './components/QuickOpen/QuickOpen'
 import AgentTabsView from './components/AIOperation/AgentTabsView'
@@ -39,9 +43,11 @@ export default function App() {
   const [selectedPath, setSelectedPath] = useState(null)
   const [contextMenu, setContextMenu] = useState(null) // { x, y, node }
   const [isTerminalOpen, setIsTerminalOpen] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isQuickOpenVisible, setIsQuickOpenVisible] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(260)
   const [isDraggingSidebar, setIsDraggingSidebar] = useState(false)
+  const [activeActivity, setActiveActivity] = useState('explorer')
   const [showRightSidebar, setShowRightSidebar] = useState(true)
   const [showMigrationModal, setShowMigrationModal] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
@@ -56,6 +62,7 @@ export default function App() {
   const [collabModal, setCollabModal] = useState(null) // { type: 'create-prompt' | 'join', code?: string }
   const [collabStatus, setCollabStatus] = useState('idle')
   const [showPermissions, setShowPermissions] = useState(false)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     const unsubStatus = collaborationService.onChange('status', (status) => setCollabStatus(status))
@@ -165,6 +172,7 @@ export default function App() {
                   const { content } = await fileService.readFile(path);
                   restoredTabs.push({
                     path,
+                    type: 'file',
                     content,
                     originalContent: content,
                     isDirty: false
@@ -227,6 +235,7 @@ export default function App() {
       const { content } = await fileService.readFile(node.path)
       const newTab = {
         path: node.path,
+        type: 'file',
         content,
         originalContent: content,
         isDirty: false,
@@ -238,12 +247,40 @@ export default function App() {
     }
   }, [tabs])
 
+  const openExtensionDetails = useCallback((ext, isMarketplace) => {
+    const tabPath = `extension:${ext.id}`;
+    const existing = tabs.find(t => t.path === tabPath);
+    if (existing) {
+      setActiveTab(tabPath);
+      return;
+    }
+    setTabs(prev => [...prev, {
+      path: tabPath,
+      name: `Extension: ${ext.name}`,
+      type: 'extension',
+      isDirty: false,
+      extensionData: { ...ext, isMarketplace }
+    }]);
+    setActiveTab(tabPath);
+  }, [tabs]);
+
+  const autoSaveTimers = useRef({})
+
   const handleEditorChange = useCallback((path, newContent) => {
     setTabs(prev => prev.map(t => {
       if (t.path !== path) return t
       return { ...t, content: newContent, isDirty: newContent !== t.originalContent }
     }))
     
+    if (autoSave) {
+      if (autoSaveTimers.current[path]) {
+        clearTimeout(autoSaveTimers.current[path])
+      }
+      autoSaveTimers.current[path] = setTimeout(() => {
+        handleSave(path)
+      }, 1500)
+    }
+
     // Sync with other collaborators if active
     if (collaborationService.roomId) {
       collaborationService.syncFileEdit(path, newContent)
@@ -618,81 +655,119 @@ export default function App() {
         onCollabJoin={() => setCollabModal({ type: 'join' })}
         isHost={collaborationService.isHost}
         onCollabPermissions={() => setShowPermissions(true)}
+        leftSidebarOpen={isSidebarOpen}
+        onToggleLeftSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        bottomPanelOpen={isTerminalOpen}
+        onToggleBottomPanel={() => setIsTerminalOpen(!isTerminalOpen)}
+        rightSidebarOpen={isChatOpen}
+        onToggleRightSidebar={() => setIsChatOpen(!isChatOpen)}
       />
 
       {/* Main area */}
       <div className="app-body">
+        {/* Activity Bar */}
+        <ActivityBar 
+          activeActivity={activeActivity}
+          onSelectActivity={(id) => {
+            if (id === 'agent') {
+              setIsChatOpen(!isChatOpen)
+            } else {
+              setActiveActivity(id)
+            }
+          }}
+          onOpenSettings={() => setShowSettings(true)}
+        />
+
         {/* Sidebar */}
-        <div className="sidebar" style={{ width: sidebarWidth }}>
-          {/* Sidebar header */}
-          <div className="sidebar-header">
-            <span className="sidebar-title">EXPLORER</span>
-            <div className="sidebar-actions">
-              <button
-                className="sidebar-action-btn"
-                onClick={() => openDialog('new-file', { path: projectRoot || '', isDir: true })}
-                title="New File"
-                disabled={!projectRoot}
-                aria-label="New file"
-              >📄+</button>
-              <button
-                className="sidebar-action-btn"
-                onClick={() => openDialog('new-folder', { path: projectRoot || '', isDir: true })}
-                title="New Folder"
-                disabled={!projectRoot}
-                aria-label="New folder"
-              >📁+</button>
-              <button
-                className="sidebar-action-btn"
-                onClick={refreshTree}
-                title="Refresh"
-                disabled={!projectRoot}
-                aria-label="Refresh explorer"
-              >🔄</button>
-            </div>
+        {isSidebarOpen && (
+          <div className="sidebar" style={{ width: sidebarWidth }}>
+            {activeActivity === 'explorer' && (
+              <>
+                {/* Sidebar header */}
+                <div className="sidebar-header">
+                  <span className="sidebar-title">EXPLORER</span>
+                  <div className="sidebar-actions">
+                    <button
+                      className="sidebar-action-btn"
+                      onClick={() => openDialog('new-file', { path: projectRoot || '', isDir: true })}
+                      title="New File"
+                      disabled={!projectRoot}
+                      aria-label="New file"
+                    >📄+</button>
+                    <button
+                      className="sidebar-action-btn"
+                      onClick={() => openDialog('new-folder', { path: projectRoot || '', isDir: true })}
+                      title="New Folder"
+                      disabled={!projectRoot}
+                      aria-label="New folder"
+                    >📁+</button>
+                    <button
+                      className="sidebar-action-btn"
+                      onClick={refreshTree}
+                      title="Refresh"
+                      disabled={!projectRoot}
+                      aria-label="Refresh explorer"
+                    >🔄</button>
+                  </div>
+                </div>
+
+                {/* Project name */}
+                {(projectName || (collabStatus === 'joined')) && (
+                  <div className="sidebar-project-name">
+                    <span>📁</span>
+                    <span className="truncate">
+                      {collabStatus === 'joined' ? `REMOTE (${collaborationService.roomId})` : projectName.toUpperCase()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Open Folder button */}
+                {(!projectRoot && collabStatus !== 'joined') ? (
+                  <div className="sidebar-open-folder">
+                    <button
+                      className="btn-open-folder"
+                      onClick={handleOpenFolder}
+                      id="btn-open-folder"
+                    >
+                      Open Folder
+                    </button>
+                    <p className="sidebar-hint">Open a folder to start editing</p>
+                  </div>
+                ) : (
+                  <FileTree
+                    tree={fileTree}
+                    selectedPath={selectedPath}
+                    onSelect={setSelectedPath}
+                    onOpen={openFile}
+                    onContextMenu={handleContextMenu}
+                    onRefresh={refreshTree}
+                  />
+                )}
+              </>
+            )}
+
+            {activeActivity === 'search' && (
+              <SearchPane 
+                projectRoot={projectRoot}
+                onOpenFile={(path) => openFile({ path, isDir: false })}
+              />
+            )}
+
+            {activeActivity === 'extensions' && (
+              <ExtensionsPane onOpenExtension={openExtensionDetails} />
+            )}
           </div>
-
-          {/* Project name */}
-          {(projectName || (collabStatus === 'joined')) && (
-            <div className="sidebar-project-name">
-              <span>📁</span>
-              <span className="truncate">
-                {collabStatus === 'joined' ? `REMOTE (${collaborationService.roomId})` : projectName.toUpperCase()}
-              </span>
-            </div>
-          )}
-
-          {/* Open Folder button */}
-          {(!projectRoot && collabStatus !== 'joined') ? (
-            <div className="sidebar-open-folder">
-              <button
-                className="btn-open-folder"
-                onClick={handleOpenFolder}
-                id="btn-open-folder"
-              >
-                Open Folder
-              </button>
-              <p className="sidebar-hint">Open a folder to start editing</p>
-            </div>
-          ) : (
-            <FileTree
-              tree={fileTree}
-              selectedPath={selectedPath}
-              onSelect={setSelectedPath}
-              onOpen={openFile}
-              onContextMenu={handleContextMenu}
-              onRefresh={refreshTree}
-            />
-          )}
-        </div>
+        )}
 
         {/* Sidebar resize handle */}
-        <div
-          className={`sidebar-resize ${isDraggingSidebar ? 'dragging' : ''}`}
-          onMouseDown={handleSidebarResizeStart}
-          aria-label="Resize sidebar"
-          role="separator"
-        />
+        {isSidebarOpen && (
+          <div
+            className={`sidebar-resize ${isDraggingSidebar ? 'dragging' : ''}`}
+            onMouseDown={handleSidebarResizeStart}
+            aria-label="Resize sidebar"
+            role="separator"
+          />
+        )}
 
         {/* Editor area */}
         <div className="editor-area">
@@ -706,14 +781,21 @@ export default function App() {
             />
           )}
 
-          {/* Monaco Editor */}
-          <EditorPane
-            activeTab={activeTab}
-            tabs={tabs}
-            onChange={handleEditorChange}
-            onCursorChange={setCursorPosition}
-            onSave={handleSave}
-          />
+          {/* Main Pane (Editor or Extension) */}
+          {activeTabData?.type === 'extension' ? (
+            <ExtensionDetailsPane 
+              extension={activeTabData.extensionData} 
+              onClose={() => handleCloseTab(activeTabData.path)}
+            />
+          ) : (
+            <EditorPane
+              activeTab={activeTab}
+              tabs={tabs}
+              onChange={handleEditorChange}
+              onCursorChange={setCursorPosition}
+              onSave={handleSave}
+            />
+          )}
 
           {/* Terminal */}
           <TerminalTabs

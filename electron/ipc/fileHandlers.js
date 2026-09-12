@@ -159,6 +159,69 @@ function registerFileHandlers() {
     }
     return { success: true }
   })
+
+  // ─── Search Files ─────────────────────────────────────────────
+  ipcMain.handle('fs:search', async (_, dirPath, query) => {
+    try {
+      if (!query || query.trim() === '') return []
+      return searchFilesRecursive(dirPath, query.toLowerCase())
+    } catch (err) {
+      throw new Error(`Search failed: ${err.message}`)
+    }
+  })
+}
+
+/**
+ * Recursively search for a string in all files in a directory.
+ */
+function searchFilesRecursive(dirPath, query, results = [], depth = 0) {
+  if (depth > 10 || results.length >= 100) return results
+
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+
+  for (const entry of entries) {
+    if (results.length >= 100) break
+    if (entry.name.startsWith('.') && entry.name !== '.env') continue
+    if (entry.name === 'node_modules' || entry.name === '.git') continue
+
+    const fullPath = path.join(dirPath, entry.name)
+
+    if (entry.isDirectory()) {
+      try {
+        searchFilesRecursive(fullPath, query, results, depth + 1)
+      } catch (err) {
+        // ignore unreadable dirs
+      }
+    } else {
+      // Basic text search in file
+      try {
+        const stats = fs.statSync(fullPath)
+        if (stats.size > 2 * 1024 * 1024) continue // Skip files > 2MB
+
+        const content = fs.readFileSync(fullPath, 'utf8')
+        // Simple heuristic to check if it's a binary file (contains null bytes)
+        if (content.indexOf('\0') !== -1) continue
+
+        const lines = content.split('\n')
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i]
+          const lowerLine = line.toLowerCase()
+          if (lowerLine.includes(query)) {
+            results.push({
+              path: fullPath,
+              line: i + 1,
+              content: line.trim()
+            })
+            if (results.length >= 100) break
+          }
+        }
+      } catch (err) {
+        // ignore unreadable files
+      }
+    }
+  }
+
+  return results
 }
 
 /**

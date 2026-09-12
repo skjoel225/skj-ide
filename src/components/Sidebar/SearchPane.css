@@ -1,0 +1,134 @@
+.search-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.search-pane-header {
+  height: var(--sidebar-header-height, 35px);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.search-pane-body {
+  padding: var(--spacing-md);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  overflow: hidden;
+}
+
+.search-form {
+  flex-shrink: 0;
+}
+
+.search-input {
+  width: 100%;
+  background-color: var(--bg-deepest);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-md);
+  outline: none;
+  transition: border-color var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: var(--brand-primary);
+}
+
+.search-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.search-results {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.search-status {
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+.search-error {
+  color: var(--text-error);
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+.search-file-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.search-file-path {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-file-path:hover {
+  background-color: var(--bg-hover);
+}
+
+.search-matches {
+  display: flex;
+  flex-direction: column;
+  padding-left: 16px;
+}
+
+.search-match {
+  display: flex;
+  gap: 8px;
+  padding: 2px 4px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  white-space: pre;
+  overflow: hidden;
+}
+
+.search-match:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.search-match-line {
+  color: var(--text-accent);
+  opacity: 0.8;
+  min-width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.search-match-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

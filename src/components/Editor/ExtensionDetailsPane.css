@@ -1,0 +1,244 @@
+.extension-details-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-primary, #1e1e1e);
+  color: var(--text-primary, #cccccc);
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.extension-details-header {
+  display: flex;
+  padding: 30px;
+  gap: 20px;
+  border-bottom: 1px solid var(--border-color, #333);
+}
+
+.ext-icon-large {
+  width: 128px;
+  height: 128px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--bg-secondary, #252526);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ext-icon-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ext-placeholder-large {
+  font-size: 64px;
+}
+
+.ext-info-large {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.ext-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.ext-name {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary, #ffffff);
+}
+
+.ext-version {
+  font-size: 14px;
+  color: var(--text-secondary, #999999);
+}
+
+.ext-publisher {
+  font-size: 14px;
+  color: var(--link-color, #3794ff);
+  margin-top: 4px;
+}
+
+.ext-description {
+  font-size: 14px;
+  color: var(--text-primary, #cccccc);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+.ext-stats {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.ext-stat-badge {
+  font-size: 12px;
+  color: var(--text-secondary, #999999);
+}
+
+.ext-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.ext-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ext-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ext-btn-primary {
+  background-color: var(--button-bg, #0e639c);
+  color: white;
+}
+
+.ext-btn-primary:hover:not(:disabled) {
+  background-color: var(--button-hover, #1177bb);
+}
+
+.ext-btn-secondary {
+  background-color: transparent;
+  color: var(--text-primary, #cccccc);
+  border: 1px solid var(--border-color, #333);
+}
+
+.ext-btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg-hover, #2a2d2e);
+}
+
+.ext-btn-danger {
+  background-color: transparent;
+  color: #f14c4c;
+  border: 1px solid #f14c4c;
+}
+
+.ext-btn-danger:hover:not(:disabled) {
+  background-color: rgba(241, 76, 76, 0.1);
+}
+
+.ext-auto-update {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary, #999999);
+  margin-left: 10px;
+}
+
+.ext-error-text {
+  color: #f14c4c;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.extension-details-body {
+  padding: 0 30px 30px 30px;
+}
+
+.ext-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color, #333);
+  margin-top: 20px;
+}
+
+.ext-tab {
+  padding: 10px 15px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-secondary, #999999);
+  border-bottom: 2px solid transparent;
+}
+
+.ext-tab.active {
+  color: var(--text-primary, #ffffff);
+  border-bottom-color: var(--accent-color, #007acc);
+}
+
+.ext-content {
+  margin-top: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ext-loading {
+  color: var(--text-secondary, #999999);
+  padding: 20px 0;
+}
+
+/* React Markdown Styles */
+.ext-markdown {
+  color: var(--text-primary, #cccccc);
+}
+
+.ext-markdown h1, 
+.ext-markdown h2, 
+.ext-markdown h3, 
+.ext-markdown h4 {
+  color: var(--text-primary, #ffffff);
+  border-bottom: 1px solid var(--border-color, #333);
+  padding-bottom: 8px;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.ext-markdown a {
+  color: var(--link-color, #3794ff);
+  text-decoration: none;
+}
+
+.ext-markdown a:hover {
+  text-decoration: underline;
+}
+
+.ext-markdown code {
+  font-family: Consolas, "Courier New", monospace;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.ext-markdown pre {
+  background-color: var(--bg-secondary, #252526);
+  padding: 16px;
+  border-radius: 4px;
+  overflow-x: auto;
+  border: 1px solid var(--border-color, #333);
+}
+
+.ext-markdown pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.ext-markdown blockquote {
+  border-left: 4px solid var(--border-color, #333);
+  margin: 0;
+  padding-left: 16px;
+  color: var(--text-secondary, #999999);
+}
+
+.ext-markdown img {
+  max-width: 100%;
+}

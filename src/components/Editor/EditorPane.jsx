@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useCallback } from 'react'
 import Editor from '@monaco-editor/react'
+import { emmetHTML, emmetCSS, emmetJSX } from 'emmet-monaco-es'
 import { detectLanguage } from '../../utils/languageDetector'
 import { collaborationService } from '../../services/collaborationService'
 import './EditorPane.css'
@@ -62,6 +63,15 @@ export default function EditorPane({ activeTab, tabs, onChange, onCursorChange, 
     // Define custom theme
     monaco.editor.defineTheme('skj-dark', SKJ_THEME)
     monaco.editor.setTheme('skj-dark')
+
+    // Initialize Emmet for HTML, CSS, and JSX
+    try {
+      emmetHTML(monaco, ['html', 'php'])
+      emmetCSS(monaco, ['css', 'scss', 'less'])
+      emmetJSX(monaco, ['javascript', 'javascriptreact', 'typescript', 'typescriptreact'])
+    } catch (err) {
+      console.warn("Emmet already initialized or failed:", err)
+    }
 
     // Cursor position listener
     editor.onDidChangeCursorPosition((e) => {

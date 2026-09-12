@@ -18,6 +18,17 @@ export default function TerminalTabs({ cwd, isOpen }) {
     setActiveTerminal(id)
   }, [])
 
+  React.useEffect(() => {
+    const handleExecute = (e) => {
+      const { command } = e.detail
+      if (command) {
+        window.electronAPI.terminal.input(activeTerminal, command + '\r')
+      }
+    }
+    window.addEventListener('skj:terminal:execute', handleExecute)
+    return () => window.removeEventListener('skj:terminal:execute', handleExecute)
+  }, [activeTerminal])
+
   const closeTerminal = useCallback((id) => {
     setTerminals(prev => {
       const remaining = prev.filter(t => t.id !== id)

@@ -1,0 +1,222 @@
+.extensions-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.extensions-pane-header {
+  height: var(--sidebar-header-height, 35px);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  justify-content: space-between;
+}
+
+.extensions-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.extension-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.extension-icon-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.extension-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.extensions-pane-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.extensions-search {
+  padding: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.extensions-list-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.extensions-section-title {
+  padding: 4px var(--spacing-md);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.extensions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.extension-card {
+  display: flex;
+  padding: 12px;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color);
+  align-items: flex-start;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.extension-card:hover {
+  background-color: var(--hover-bg, rgba(255, 255, 255, 0.05));
+}
+
+.extension-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.extension-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.extension-icon-placeholder {
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+.extension-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: 2px;
+}
+
+.extension-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.extension-description {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.extension-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.extension-publisher {
+  color: var(--text-muted);
+}
+
+.extension-version {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.extension-downloads, .extension-rating {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.extension-install-btn {
+  background-color: var(--button-primary-bg, #007acc);
+  color: white;
+  border: none;
+  border-radius: 2px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin-left: auto;
+}
+
+.extension-install-btn:hover:not(:disabled) {
+  background-color: var(--button-primary-hover, #005f9e);
+}
+
+.extension-installed-btn {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  cursor: default;
+}
+
+.extensions-status, .extensions-error, .extensions-empty {
+  padding: var(--spacing-md);
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.extensions-error {
+  color: var(--text-error);
+}
+
+.extensions-retry-btn {
+  background-color: transparent;
+  border: 1px solid var(--text-error);
+  color: var(--text-error);
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.extensions-retry-btn:hover {
+  background-color: rgba(255,0,0,0.1);
+}

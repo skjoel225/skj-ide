@@ -156,3 +156,34 @@
   background: #e81123;
   color: white;
 }
+
+.titlebar-layout-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 12px;
+  -webkit-app-region: no-drag;
+}
+
+.layout-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.layout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.layout-btn.active {
+  color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.05);
+}

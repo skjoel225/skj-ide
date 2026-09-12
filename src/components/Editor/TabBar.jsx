@@ -1,5 +1,7 @@
-import React, { useRef } from 'react'
+import React, { useRef, useMemo } from 'react'
 import { basename } from '../../utils/pathUtils'
+import { detectLanguage } from '../../utils/languageDetector'
+import { actionRegistry } from '../../services/actionRegistry'
 import './TabBar.css'
 
 export default function TabBar({ tabs, activeTab, onSelect, onClose }) {
@@ -11,11 +13,24 @@ export default function TabBar({ tabs, activeTab, onSelect, onClose }) {
     }
   }
 
+  // Determine actions based on active tab language
+  const activeActions = useMemo(() => {
+    if (!activeTab) return [];
+    
+    // Check if it's an extension or normal file
+    if (activeTab.startsWith('extension:')) return [];
+
+    const langId = detectLanguage(activeTab);
+    return actionRegistry.getActionsForMenu('editor/title', { resourceLangId: langId });
+  }, [activeTab]);
+
+  const actionContext = { filePath: activeTab };
+
   return (
     <div className="tabbar" role="tablist" aria-label="Open files">
       <div className="tabbar-scroll" ref={scrollRef} onWheel={handleWheel}>
         {tabs.map((tab) => {
-          const name = basename(tab.path)
+          const name = tab.name || basename(tab.path)
           const isActive = tab.path === activeTab
           return (
             <div
@@ -41,6 +56,18 @@ export default function TabBar({ tabs, activeTab, onSelect, onClose }) {
             </div>
           )
         })}
+      </div>
+      <div className="tabbar-actions">
+        {activeActions.map(action => (
+          <button
+            key={action.command}
+            className="editor-action-btn"
+            title={action.title}
+            onClick={() => actionRegistry.executeCommand(action.command, actionContext)}
+          >
+            {action.icon}
+          </button>
+        ))}
       </div>
     </div>
   )

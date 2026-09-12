@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, session } = require('electron')
+const { app, BrowserWindow, ipcMain, session, dialog, shell } = require('electron')
 const path = require('path')
 
 // Import IPC handlers
@@ -6,6 +6,7 @@ const { registerFileHandlers } = require('./ipc/fileHandlers')
 const { registerTerminalHandlers } = require('./ipc/terminalHandlers')
 const { registerDialogHandlers } = require('./ipc/dialogHandlers')
 const { registerAIHandlers } = require('./ipc/aiHandlers')
+const { registerExtensionHandlers } = require('./ipc/extensionHandlers')
 const agentService = require('./services/agentService')
 const permissionService = require('./services/permissionService')
 const updateManager = require('./services/updateManager')
@@ -69,6 +70,11 @@ app.whenReady().then(() => {
     return true
   })
 
+  // --- Shell ---
+  ipcMain.handle('shell:openPath', async (_, targetPath) => {
+    return await shell.openPath(targetPath)
+  })
+
   const win = createWindow()
 
   // Register all IPC handlers
@@ -76,6 +82,7 @@ app.whenReady().then(() => {
   registerTerminalHandlers(win)
   registerDialogHandlers(win)
   registerAIHandlers(win)
+  registerExtensionHandlers()
 
   agentService.setMainWindow(win)
   permissionService.setMainWindow(win)

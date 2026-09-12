@@ -24,6 +24,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveFile: (defaultPath) => ipcRenderer.invoke('dialog:saveFile', defaultPath),
   },
 
+  // ─── Shell ─────────────────────────────────────────────────────
+  shell: {
+    openPath: (path) => ipcRenderer.invoke('shell:openPath', path),
+  },
+
   // ─── File System ───────────────────────────────────────────────
   fs: {
     readDir: (dirPath) => ipcRenderer.invoke('fs:readDir', dirPath),
@@ -37,6 +42,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     stat: (targetPath) => ipcRenderer.invoke('fs:stat', targetPath),
     watchDir: (dirPath) => ipcRenderer.invoke('fs:watchDir', dirPath),
     unwatchDir: (dirPath) => ipcRenderer.invoke('fs:unwatchDir', dirPath),
+    search: (dirPath, query) => ipcRenderer.invoke('fs:search', dirPath, query),
     onFileChange: (cb) => ipcRenderer.on('fs:fileChange', (_, event) => cb(event)),
   },
 
@@ -97,5 +103,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onError: (cb) => ipcRenderer.on('update:error', (_, err) => cb(err)),
     onProgress: (cb) => ipcRenderer.on('update:progress', (_, progressObj) => cb(progressObj)),
     onDownloaded: (cb) => ipcRenderer.on('update:downloaded', (_, info) => cb(info)),
+  },
+
+  // ─── Extensions ───────────────────────────────────────────────────
+  extensions: {
+    getInstalled: () => ipcRenderer.invoke('extensions:getInstalled'),
+    installVSIX: (filePath) => ipcRenderer.invoke('extensions:installVSIX', filePath),
+    search: (query) => ipcRenderer.invoke('extensions:search', query),
+    installFromMarketplace: (url) => ipcRenderer.invoke('extensions:installFromMarketplace', url),
+    uninstall: (id) => ipcRenderer.invoke('extensions:uninstall', id),
+    enable: (id) => ipcRenderer.invoke('extensions:enable', id),
+    disable: (id) => ipcRenderer.invoke('extensions:disable', id),
+    getLocalReadme: (id) => ipcRenderer.invoke('extensions:getLocalReadme', id),
+    getMarketplaceReadme: (url) => ipcRenderer.invoke('extensions:getMarketplaceReadme', url),
   }
 })
