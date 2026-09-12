@@ -41,7 +41,7 @@ function registerTerminalHandlers(win) {
           TERM: 'xterm-256color',
           COLORTERM: 'truecolor',
         },
-        useConpty: false
+        useConpty: true
       })
 
       ptyProcess.onData((data) => {
